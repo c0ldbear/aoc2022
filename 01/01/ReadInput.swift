@@ -12,7 +12,7 @@ class ReadInput {
     static var shared = ReadInput()
     
     private let home = FileManager.default.homeDirectoryForCurrentUser
-    private let projectFolder = "dev/aoc2022/aoc20221201"
+    private let projectFolder = "dev/aoc2022/01"
     private lazy var projectUrl = home.appendingPathComponent(projectFolder)
     private lazy var inputFile = projectUrl.appendingPathComponent("input").path
     private lazy var fileHandle: FileHandle? = FileHandle(forReadingAtPath: inputFile)
