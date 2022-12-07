@@ -9,13 +9,21 @@ import Foundation
 
 class ReadInput {
     
-    static var shared = ReadInput()
+    var inputFolder: String
+    
+    static var shared = ReadInput(inputFolder: "01")
     
     private let home = FileManager.default.homeDirectoryForCurrentUser
-    private let projectFolder = "dev/aoc2022/02"
+    private var projectFolder: String {
+        return "dev/aoc2022/\(self.inputFolder)"
+    }
     private lazy var projectUrl = home.appendingPathComponent(projectFolder)
     private lazy var inputFile = projectUrl.appendingPathComponent("input").path
     private lazy var fileHandle: FileHandle? = FileHandle(forReadingAtPath: inputFile)
+    
+    init(inputFolder: String) {
+        self.inputFolder = inputFolder
+    }
     
     func read() -> String {
         guard let fileHandle = fileHandle else { return "Something went wrong." }

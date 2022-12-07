@@ -11,92 +11,163 @@ enum GameMove {
     case rock
     case paper
     case scissors
-    
-    
 }
 
-class Player {
-    var encryptMove: String = ""
-    var decryptMove: GameMove? {
-        return decrypt()
+enum GameStrat {
+    case lose
+    case draw
+    case win
+}
+
+class Game {
+    var opponentMove: GameMove
+    var playerMove: GameMove
+    var playerStrat: GameStrat
+    var playerScore: Int = 0
+
+    init() {
+        opponentMove = .paper
+        playerMove = .paper
+        playerStrat = .draw
     }
-    var score = 0
-    
-    private func decrypt() -> GameMove? {
-        switch encryptMove {
-        case "X":
-            return .rock
-        case "Y":
-            return .paper
-        case "Z":
-            return .scissors
-        default:
-            return nil
+
+    func decypherOpponentMove(_ move: String) {
+        switch move {
+        case "A":
+            opponentMove = .rock
+        case "B":
+            opponentMove = .paper
+        default: // "C" - case and onwards...
+            opponentMove = .scissors
         }
     }
-    
-    private func increaseScoreOnMove() {
-        switch decryptMove {
+
+
+    func decidePlayerMoveOnStrategy(_ strat: String) {
+        switch strat {
+        case "X": // lose
+            playerStrat = .lose
+            switch opponentMove {
+            case .rock:
+                playerMove = .scissors
+            case .paper:
+                playerMove = .rock
+            case .scissors:
+                playerMove = .paper
+            }
+        case "Y": // draw
+            playerStrat = .draw
+            playerMove = opponentMove
+        default: // win
+            playerStrat = .win
+            switch opponentMove {
+            case .rock:
+                playerMove = .paper
+            case .paper:
+                playerMove = .scissors
+            case .scissors:
+                playerMove = .rock
+            }
+        }
+    }
+
+    private func addScoreToPlayerBasedOnMove() {
+        switch playerMove {
         case .rock:
-            score += 1
+            playerScore += 1
         case .paper:
-            score += 2
+            playerScore += 2
         case .scissors:
-            score += 3
-        default:
-            score += 0
+            playerScore += 3
         }
     }
-    
+
+    func calculateScore() {
+        addScoreToPlayerBasedOnMove()
+        switch playerStrat {
+        case .lose:
+            playerScore += 0
+        case .draw:
+            playerScore += 3
+        case .win:
+            playerScore += 6
+        }
+    }
+
+}
+
+func part01(playerMove: String, opponentMove: String) -> Int {
+    var playerPoints = 0
+
+    // Count points for move
+    switch playerMove {
+    case "X":
+        playerPoints += 1
+    case "Y":
+        playerPoints += 2
+    case "Z":
+        playerPoints += 3
+    default:
+        playerPoints += 0
+    }
+
+    if (playerMove == "X" && opponentMove == "A")
+        || (playerMove == "Y" && opponentMove == "B")
+        || (playerMove == "Z" && opponentMove == "C") { // Draw
+        playerPoints += 3
+    } else if (playerMove == "X" && opponentMove == "B")
+                || (playerMove == "Y" && opponentMove == "C")
+                || (playerMove == "Z" && opponentMove == "A") { // Lost
+        playerPoints += 0
+    } else if (playerMove == "X" && opponentMove == "C")
+                || (playerMove == "Y" && opponentMove == "A")
+                || (playerMove == "Z" && opponentMove == "B") { // Won
+        playerPoints += 6
+    }
+
+    return playerPoints
+}
+
+func getInput(mock: Bool = false) -> String {
+    if mock {
+        return Mock.input
+    }
+    return ReadInput.shared.read()
 }
 
 func main() {
-    //    let input = Mock.input
-    let input = ReadInput.shared.read()
-    
+    ReadInput.shared.inputFolder = "02"
+    let input = getInput()
+    print(input)
+
+    var game = Game()
+
     // A giant tournament of Rock, Paper, Scissors!
     // Rules:
     // Points for move played : 1 for Rock, 2 for Paper and 3 for Scissors
     // Opponent plays: A - Rock, B - Paper, C - Scissors
     // Player plays: X - Rock, Y - Paper, Z - Scissors
     
-    var playerPoints = 0
-    //    var player = Player()
+    // Part 02:
+    // New rules for player: X - should lose!, Y - should draw!, Z - should win!
     
+    var playerPoints = 0
+
     for gameSequence in input.split(separator: "\n") {
         //        player.encryptMove = gameSequence.split(separator: " ").last ?? ""
-        let playerMove = gameSequence.split(separator: " ").last ?? ""
-        let opponentMove = gameSequence.split(separator: " ").first ?? ""
-        
-        // Count points for move
-        switch playerMove {
-        case "X":
-            playerPoints += 1
-        case "Y":
-            playerPoints += 2
-        case "Z":
-            playerPoints += 3
-        default:
-            playerPoints += 0
-        }
-        
-        // Decide who won or draw (lost - 0, draw - 3, won - 6)
-        if (playerMove == "X" && opponentMove == "A")
-            || (playerMove == "Y" && opponentMove == "B")
-            || (playerMove == "Z" && opponentMove == "C") { // Draw
-            playerPoints += 3
-        } else if (playerMove == "X" && opponentMove == "B")
-                    || (playerMove == "Y" && opponentMove == "C")
-                    || (playerMove == "Z" && opponentMove == "A") { // Lost
-            playerPoints += 0
-        } else if (playerMove == "X" && opponentMove == "C")
-                    || (playerMove == "Y" && opponentMove == "A")
-                    || (playerMove == "Z" && opponentMove == "B") { // Won
-            playerPoints += 6
-        }
-        
+        let playerMove = String(gameSequence.split(separator: " ").last ?? "")
+        let opponentMove = String(gameSequence.split(separator: " ").first ?? "")
+
+        game.decypherOpponentMove(opponentMove)
+        game.decidePlayerMoveOnStrategy(playerMove)
+        game.calculateScore()
+
+        playerPoints += part01(playerMove: playerMove, opponentMove: opponentMove)
+
     }
-    print("Player score: \(playerPoints)")
+    print(">> Player score (part 01): \(playerPoints)") // should show 11449
+    print(">> Player score (part 02): \(game.playerScore)")
+    print()
 }
 
 main()

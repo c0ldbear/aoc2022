@@ -9,6 +9,7 @@ import Foundation
 
 func main() {
     print("Starting!\n")
+    ReadInput.shared.inputFolder = "01"
     let input = ReadInput.shared.read().split(separator: "\n", omittingEmptySubsequences: false)
     var result = Solution.shared.part01(with: input)
     print("Result for part 01:\n  \(result)")
