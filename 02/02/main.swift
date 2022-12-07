@@ -138,7 +138,6 @@ func getInput(mock: Bool = false) -> String {
 func main() {
     ReadInput.shared.inputFolder = "02"
     let input = getInput()
-    print(input)
 
     var game = Game()
 
